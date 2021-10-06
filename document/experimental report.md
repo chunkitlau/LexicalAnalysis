@@ -1,8 +1,4 @@
-# LexicalAnalysis
-
-该项目是北京邮电大学计算机学院2021年秋季本科三年级《编译原理与技术》课程作业。
-
-Github Repository Link [https://github.com/chunkitlau/LexicalAnalysis](https://github.com/chunkitlau/LexicalAnalysis)
+# C语言词法分析程序的设计与实现实验报告
 
 ## 题目：词法分析程序的设计与实现
 
@@ -20,6 +16,17 @@ Github Repository Link [https://github.com/chunkitlau/LexicalAnalysis](https://g
 
 方法2：编写 LEX 源程序，利用 LEX 编译程序自动生成词法分析程序。
 
-## 版权
+## 程序设计说明
 
-Copyright © 2021 Chunkit Lau. All rights reserved.
+## 源程序
+
+## 可执行程序
+
+## 测试报告
+
+### 输入
+
+### 运行结果
+
+### 分析说明
+
