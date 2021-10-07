@@ -8,6 +8,9 @@
  * Const
  */
 
+/****************************************************************
+ * State
+ */
 #define START         0
 #define ID            1
 #define RID           2
@@ -15,36 +18,78 @@
 #define DIGIT         4
 #define DIGITS        5
 #define REMAINDER     6
-#define NUM           7
-#define NUM1          8
-#define NUM2          9
-#define NUM3         10
-#define NUM4         11
-#define OP           12
-#define PLUS         13
-#define MINUS        14
-#define EQUAL        15
-#define AND          16
-#define OR           17
-#define SMALLER      18
-#define GREATER      19
-#define SMALLEREQUAL 20
-#define GREATEREQUAL 21
-#define SINGLE       22
-#define NOTE         23
-#define STAR         24
-#define STAR1        25
-#define STAR2        26
-#define SLASH        27
-#define SLASH1       28
+#define NUM1          7
+#define NUM2          8
+#define NUM3          9
+#define NUM4         10
+#define OP           11
+#define SMALLEREQUAL 12
+#define GREATEREQUAL 13
+#define SINGLE       14
+#define NOTE         15
+#define STAR1        16
+#define STAR2        17
+#define SLASH1       18
 
+#define PLUS         19
+#define MINUS        20
+#define STAR         21
+#define SLASH        22
+#define MOD          23
+#define EQUAL        24
+#define BANG         25
+#define GREATER      26
+#define RSHIFT       27
+#define SMALLER      28
+#define LSHIFT       29
+#define AND          30
+#define OR           31
+#define CARET        32
+#define LSHIFT       33
+
+/****************************************************************
+ * Token type
+ */
+#define ID           31
+#define NUM          32
+#define INT          33
+#define FLOAT        34
+#define OP           35
+#define SINGLE       36
+#define NOTE         37
+#define KEYWORD      38
+
+static std::string type2str(int type) {
+    switch (type) {
+    case ID: return "ID";
+    case NUM: return "NUM";
+    case INT: return "INT";
+    case FLOAT: return "FLOAT";
+    case OP: return "OP";
+    case SINGLE: return "SINGLE";
+    case NOTE: return "NOTE";
+    case KEYWORD: return "KEYWORD";
+    default: return "UNDEFINE";
+    }
+}
+
+static std::map<int, int> typeCount = {
+    {ID, 0},
+    {NUM, 0},
+    {INT, 0},
+    {FLOAT, 0},
+    {OP, 0},
+    {SINGLE, 0},
+    {NOTE, 0},
+    {KEYWORD, 0}
+};
 
 /****************************************************************
  * Attributes
  */
-static char ch;
-static int state, isKey;
-static std::string token;
+static char ch, chRetract;
+static int state, isKey, isRetract, line = 1, column = 1, character;
+static std::string token, error;
 
 static std::ifstream program;
 static std::ofstream result;
@@ -94,9 +139,11 @@ static int getNbc();
 static int cat();
 static bool isLetter();
 static bool isDigit();
-static bool isReserve(const std::string &token);
-static int SToI(const std::string &token);
-static float SToF(const std::string &token);
-static int tableInsert(std::vector<std::string> &table, const std::string &token);
-static int error();
-static int returnProcess();
+static int retract();
+static bool isReserve();
+static int SToI();
+static float SToF();
+static int tableInsert();
+static int returnError();
+static int returnToken(int type);
+static std::string typeCount2str();

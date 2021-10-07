@@ -23,33 +23,427 @@ int lexicalAnalysis() {
     state = START;
     do {
         switch (state) {
+        // Inital state
         case START:
             token = "";
             getChar();
             getNbc();
-            if (isLetter(ch)) {
-                state = ID;
+            if (isLetter()) {
+                state = RID;
             }
-            else if (isDigit(ch)) {
-                state = DIGITS;
+            else if (isDigit()) {
+                state = NUM1;
+            }
+            else {
+                switch (ch) {
+                case '+': state = PLUS; break;
+                case '-': state = MINUS; break;
+                case '*': state = STAR; break;
+                case '/': state = SLASH; break;
+                case '%': state = MOD; break;
+                case '=': state = EQUAL; break;
+                case '!': state = BANG; break;
+                case '<': state = GREATER; break;
+                case '>': state = SMALLER; break;
+                case '&': state = AND; break;
+                case '|': state = OR; break;
+                case '^': state = CARET; break;
+                case '~': state = START; returnToken(OP); break;
+                case '?': state = START; returnToken(OP); break;
+                case ':': state = START; returnToken(OP); break;
+                case '(': state = START; returnToken(SINGLE); break;
+                case ')': state = START; returnToken(SINGLE); break;
+                case '[': state = START; returnToken(SINGLE); break;
+                case ']': state = START; returnToken(SINGLE); break;
+                case '{': state = START; returnToken(SINGLE); break;
+                case '}': state = START; returnToken(SINGLE); break;
+                case '.': state = START; returnToken(SINGLE); break;
+                case ',': state = START; returnToken(SINGLE); break;
+                case ';': state = START; returnToken(SINGLE); break;
+                case '\n': state = START; break;
+                case EOF: break;
+                default: 
+                    // Handle returnError
+                    returnError();
+                    state = START;
+                    break;
+                }
             }
             break;
 
-        case ID:
+        // ID state
+        case RID:
             cat();
             getChar();
-            if (isLetter(ch)) {
-                state = ID;
+            if (isLetter() || isDigit()) {
+                state = RID;
             }
-            else if (isDigit(ch)) {
-                state = DIGITS;
+            else {
+                retract();
+                state = START;
+                isKey = isReserve();
+                if (isKey) {
+                    returnToken(KEYWORD);
+                }
+                else {
+                    tableInsert();
+                    returnToken(ID);
+                }
+            }
+            break;
+
+        // Int state
+        case NUM1:
+            cat();
+            getChar();
+            if (isDigit()) {
+                state = NUM1;
+            }
+            else {
+                switch (ch) {
+                case '.': state = NUM2; break;
+                case 'E': state = NUM4; break;
+                default: 
+                    retract();
+                    state = START;
+                    returnToken(INT);
+                    break;
+                }
+            }
+            break;
+
+        // Float point state
+        case NUM2:
+            cat();
+            getChar();
+            if (isDigit()) {
+                state = NUM3;
+            }
+            else {
+                returnError();
+                state = START;
+            }
+            break;
+
+        // Float state
+        case NUM3:
+            cat();
+            getChar();
+            if (isDigit()) {
+                state = NUM3;
+            }
+            else {
+                switch (ch) {
+                case 'E': state = NUM4; break;
+                default: 
+                    retract();
+                    state = START;
+                    returnToken(FLOAT);
+                    break;
+                }
+            }
+            break;
+
+        // Float exponent state
+        case NUM4:
+            cat();
+            getChar();
+            if (isDigit()) {
+                state = REMAINDER;
+            }
+            else {
+                switch (ch) {
+                case '+': 
+                case '-': state = DIGITS; break;
+                default: 
+                    retract();
+                    returnError();
+                    state = START;
+                    break;
+                }
+            }
+            break;
+
+        // Float digits state
+        case DIGITS:
+            cat();
+            getChar();
+            if (isDigit()) {
+                state = REMAINDER;
+            }
+            else {
+                retract();
+                returnError();
+                state = START;
+            }
+            break;
+
+        // Float remainder state
+        case REMAINDER:
+            cat();
+            getChar();
+            if (isDigit()) {
+                state = REMAINDER;
+            }
+            else {
+                retract();
+                state = START;
+                returnToken(FLOAT);
+            }
+            break;
+        
+        // Plus state
+        case PLUS:
+            cat();
+            getChar();
+            switch (ch) {
+            case '+': state = START; returnToken(OP); break;
+            case '=': state = START; returnToken(OP); break;
+            default:
+                retract();
+                state = START;
+                returnToken(OP);
+                break;
+            }
+            break;
+
+        // Minus state
+        case MINUS:
+            cat();
+            getChar();
+            switch (ch) {
+            case '-': state = START; returnToken(OP); break;
+            case '=': state = START; returnToken(OP); break;
+            default:
+                retract();
+                state = START;
+                returnToken(OP);
+                break;
+            }
+            break;
+
+        // Star state
+        case STAR:
+            cat();
+            getChar();
+            switch (ch) {
+            case '=': state = START; returnToken(OP); break;
+            default:
+                retract();
+                state = START;
+                returnToken(OP);
+                break;
+            }
+            break;
+
+        // Slash state
+        case SLASH:
+            cat();
+            getChar();
+            switch (ch) {
+            case '=': state = START; returnToken(OP); break;
+            case '/': state = SLASH1; break;
+            case '*': state = STAR1; break;
+            default:
+                retract();
+                state = START;
+                returnToken(OP);
+                break;
+            }
+            break;
+
+        // Slash slash state
+        case SLASH1:
+            cat();
+            getChar();
+            switch (ch) {
+            case '\n': state = START; token.pop_back(); (NOTE); break;
+            default:
+                state = SLASH1;
+                break;
+            }
+            break;
+
+        // Slash star state
+        case STAR1:
+            cat();
+            getChar();
+            switch (ch) {
+            case '*': state = STAR2; break;
+            default:
+                state = STAR1;
+                break;
+            }
+            break;
+
+        // Slash star ... star state
+        case STAR2:
+            cat();
+            getChar();
+            switch (ch) {
+            case '/': state = START; returnToken(NOTE); break;
+            default:
+                state = STAR1;
+                break;
+            }
+            break;
+
+        // Mod state
+        case MOD:
+            cat();
+            getChar();
+            switch (ch) {
+            case '=': state = START; returnToken(OP); break;
+            default:
+                retract();
+                state = START;
+                returnToken(OP);
+                break;
+            }
+            break;
+
+        // Equal state
+        case EQUAL:
+            cat();
+            getChar();
+            switch (ch) {
+            case '=': state = START; returnToken(OP); break;
+            default:
+                retract();
+                state = START;
+                returnToken(OP);
+                break;
+            }
+            break;
+
+        // Bang state
+        case BANG:
+            cat();
+            getChar();
+            switch (ch) {
+            case '=': state = START; returnToken(OP); break;
+            default:
+                retract();
+                state = START;
+                returnToken(OP);
+                break;
+            }
+            break;
+
+        // Greater state
+        case GREATER:
+            cat();
+            getChar();
+            switch (ch) {
+            case '=': state = START; returnToken(OP); break;
+            case '>': state = RSHIFT; break;
+            default:
+                retract();
+                state = START;
+                returnToken(OP);
+                break;
+            }
+            break;
+
+        // Rshift state
+        case RSHIFT:
+            cat();
+            getChar();
+            switch (ch) {
+            case '=': state = START; returnToken(OP); break;
+            default:
+                retract();
+                state = START;
+                returnToken(OP);
+                break;
+            }
+            break;
+
+        // Smaller state
+        case SMALLER:
+            cat();
+            getChar();
+            switch (ch) {
+            case '=': state = START; returnToken(OP); break;
+            case '<': state = LSHIFT; break;
+            default:
+                retract();
+                state = START;
+                returnToken(OP);
+                break;
+            }
+            break;
+
+        // Lshift state
+        case LSHIFT:
+            cat();
+            getChar();
+            switch (ch) {
+            case '=': state = START; returnToken(OP); break;
+            default:
+                retract();
+                state = START;
+                returnToken(OP);
+                break;
+            }
+            break;
+
+        // And state
+        case AND:
+            cat();
+            getChar();
+            switch (ch) {
+            case '&': state = START; returnToken(OP); break;
+            case '=': state = START; returnToken(OP); break;
+            default:
+                retract();
+                state = START;
+                returnToken(OP);
+                break;
+            }
+            break;
+
+        case OR:
+            cat();
+            getChar();
+            switch (ch) {
+            case '|': state = START; returnToken(OP); break;
+            case '=': state = START; returnToken(OP); break;
+            default:
+                retract();
+                state = START;
+                returnToken(OP);
+                break;
+            }
+            break;
+
+        case CARET:
+            cat();
+            getChar();
+            switch (ch) {
+            case '=': state = START; returnToken(OP); break;
+            default:
+                retract();
+                state = START;
+                returnToken(OP);
+                break;
             }
             break;
 
         default:
+            returnError();
+            state = START;
             break;
         }
     }while (ch != EOF);
+    result << "****************************************************************" << std::endl
+           << "Lexical analysis compleated. Source program has" << line << " lines." << std::endl
+           << "Token type count:" << std::endl
+           << typeCount2str()
+           << "Total " << character << "characters." << std::endl
+           << "****************************************************************" << std::endl
+           << "Error info:" << std::endl
+           << error << std::endl;
 }
 
 /****************************************************************
@@ -60,7 +454,21 @@ int lexicalAnalysis() {
  * Read char from program.
  */
 int getChar() {
-    program >> ch;
+    if (!isRetract) {
+        program >> ch;
+        ++character;
+    }
+    else {
+        isRetract = 0;
+        ch = chRetract;
+    }
+    if (ch != '\n') {
+        ++column;
+    }
+    else {
+        ++line;
+        column = 1;
+    }
     return 0;
 }
 
@@ -68,9 +476,9 @@ int getChar() {
  * Make ch non-space char.
  */
 int getNbc() {
-    program >> ch;
+    getChar();
     while (ch == ' ') {
-        program >> ch;
+        getChar();
     }
     return 0;
 }
@@ -79,7 +487,7 @@ int getNbc() {
  * Cat token and ch.
  */
 int cat() {
-    token = token + ch;
+    token.push_back(ch);
     return 0;
 }
 
@@ -95,35 +503,52 @@ bool isLetter() {
 /****************************************************************
  * Return 1 if ch is '0'~'9'.
  */
-bool isDigit(char ch) {
+bool isDigit() {
     return ('0' <= ch) && (ch <= '9');
+}
+
+/****************************************************************
+ * retract
+ */
+int retract() {
+    if (column > 1) {
+        --column;
+    }
+    else {
+        return 1;
+    }
+    isRetract = 1;
+    chRetract = ch;
+    ch = token.back();
+    token.pop_back();
+    return 0;
 }
 
 /****************************************************************
  * Return 1 if token is keyword.
  */
-bool isReserve(const std::string &token) {
+bool isReserve() {
     return keyword.find(token) != keyword.end();
 }
 
 /****************************************************************
  * Return token as int.
  */
-int SToI(const std::string &token) {
+int SToI() {
     return std::stoi(token);
 }
 
 /****************************************************************
  * Return token as float.
  */
-float SToF(const std::string &token) {
+float SToF() {
     return std::stof(token);
 }
 
 /****************************************************************
  * Insert token to table.
  */
-int tableInsert(std::vector<std::string> &table, const std::string &token) {
+int tableInsert() {
     table.push_back(token);
     return 0;
 }
@@ -131,13 +556,29 @@ int tableInsert(std::vector<std::string> &table, const std::string &token) {
 /****************************************************************
  * Handle error.
  */
-int error() {
+int returnError() {
+    error += "ERROR at Ln " + std::to_string(line) + ", Col " + std::to_string(column) + "\n";
     return 0;
 }
 
 /****************************************************************
  * Handle return.
+ * Token = Token + ch
  */
-int returnProcess() {
+int returnToken(int type) {
+    ++typeCount[type];
+    result << "Find token <" << type2str(type) << ", " << token << ch << "> " << 
+        "at Ln " << line << ", Col " << column << std::endl;
     return 0;
+}
+
+/****************************************************************
+ * typeCount2str.
+ */
+std::string typeCount2str() {
+    std::string result;
+    for (std::map<int, int>::iterator it = typeCount.begin(); it != typeCount.end(); ++it) {
+        result += type2str(it->first) + ": " + std::to_string(it->second) + "\n";
+    }
+    return result;
 }
