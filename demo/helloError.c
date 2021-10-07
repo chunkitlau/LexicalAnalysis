@@ -2,8 +2,11 @@
  
 int main()
 {
-   /* My first C program */
+   /* My third C program */
    printf("Hello, World! \n");
    
+   int a = 123a;
+   char* b = ";
+
    return 0;
 }

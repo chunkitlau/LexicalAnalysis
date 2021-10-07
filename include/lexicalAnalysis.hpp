@@ -6,6 +6,7 @@
 #include <vector>
 #include <map>
 #include <string>
+#include <unistd.h>
 
 /****************************************************************
  * Const
@@ -15,71 +16,76 @@
  * State
  */
 #define START         0
-#define RID           2
-#define LETTER        3
-#define DIGIT         4
-#define DIGITS        5
-#define REMAINDER     6
-#define NUM1          7
-#define NUM2          8
-#define NUM3          9
-#define NUM4         10
-#define SMALLEREQUAL 12
-#define GREATEREQUAL 13
-#define STAR1        16
-#define STAR2        17
-#define SLASH1       18
+#define RID           1
+#define LETTER        2
+#define DIGIT         3
+#define DIGITS        4
+#define REMAINDER     5
+#define NUM1          6
+#define NUM2          7
+#define NUM3          8
+#define NUM4          9
+#define SMALLEREQUAL 10
+#define GREATEREQUAL 11
+#define STAR1        12
+#define STAR2        13
+#define SLASH1       14
 
-#define PLUS         19
-#define MINUS        20
-#define STAR         21
-#define SLASH        22
-#define MOD          23
-#define EQUAL        24
-#define BANG         25
-#define GREATER      26
-#define RSHIFT       27
-#define SMALLER      28
-#define LSHIFT       29
-#define AND          30
-#define OR           31
-#define CARET        32
+#define PLUS         15
+#define MINUS        16
+#define STAR         17
+#define SLASH        18
+#define MOD          19
+#define EQUAL        20
+#define BANG         21
+#define GREATER      22
+#define RSHIFT       23
+#define SMALLER      24
+#define LSHIFT       25
+#define AND          26
+#define OR           27
+#define CARET        28
+#define RSTRING      29
+#define RPREPROCESS  30
 
 /****************************************************************
  * Token type
  */
 #define ID           31
-#define NUM          32
-#define INT          33
-#define FLOAT        34
-#define OP           35
-#define SINGLE       36
-#define NOTE         37
-#define KEYWORD      38
+#define INT          32
+#define FLOAT        33
+#define OP           34
+#define SINGLE       35
+#define NOTE         36
+#define KEYWORD      37
+#define STRING       38
+#define PREPROCESS   39
 
 static std::string type2str(int type) {
     switch (type) {
     case ID: return "ID";
-    case NUM: return "NUM";
     case INT: return "INT";
     case FLOAT: return "FLOAT";
     case OP: return "OP";
     case SINGLE: return "SINGLE";
     case NOTE: return "NOTE";
     case KEYWORD: return "KEYWORD";
+    case STRING: return "STRING";
+    case PREPROCESS: return "PREPROCESS";
     default: return "UNDEFINE";
     }
 }
 
 static std::map<int, int> typeCount = {
     {ID, 0},
-    {NUM, 0},
     {INT, 0},
     {FLOAT, 0},
     {OP, 0},
     {SINGLE, 0},
     {NOTE, 0},
-    {KEYWORD, 0}
+    {KEYWORD, 0},
+    {STRING, 0},
+    {PREPROCESS, 0}
 };
 
 /****************************************************************

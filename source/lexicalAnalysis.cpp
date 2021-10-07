@@ -4,13 +4,53 @@
  * main
  */
 int main(int argc, char* argv[]) {
-    std::string programPath("../demo/hello.c");
-    program.open(programPath);
+    std::string programName("hello");
 
-    std::string resultPath("../result/hello.txt");
-    result.open(resultPath);
+    int c = 0; 
+    while(EOF != (c = getopt(argc,argv,"p:"))){
+        switch(c){
+            case 'p':
+                programName = optarg;
+                break;
+            case '?':
+                printf("-p <file>.c to specify demo program file\n");
+                break;
+            default:
+                break;
+        }
+    }
+
+    // Plan a: Don't work.
+    std::string programPath("./demo/" + programName + ".c");
+    program.open(programPath.c_str());
+
+    // Plan b: Work.
+    freopen(programPath.c_str(), "r", stdin);
+
+    std::string resultPath("./result/" + programName + ".txt");
+    result.open(resultPath.c_str());
 
     lexicalAnalysis();
+    
+    result << "****************************************************************" << std::endl
+           << "Lexical analysis compleated. Source program has " << line << " lines." << std::endl
+           << "Token type count:" << std::endl
+           << typeCount2str()
+           << "Total " << character << " characters." << std::endl
+           << "****************************************************************" << std::endl
+           << "Error info:" << std::endl
+           << error << std::endl;
+
+    std::cout << "****************************************************************" << std::endl
+           << "Lexical analysis compleated. Source program has " << line << " lines." << std::endl
+           << "Token type count:" << std::endl
+           << typeCount2str()
+           << "Total " << character << " characters." << std::endl
+           << "****************************************************************" << std::endl
+           << "Error info:" << std::endl
+           << error << std::endl
+           << "****************************************************************" << std::endl
+           << "Find detail infomation at ./result/" + programName + ".txt" << std::endl;
 
     program.close();
     result.close();
@@ -48,6 +88,8 @@ int lexicalAnalysis() {
                 case '&': state = AND; break;
                 case '|': state = OR; break;
                 case '^': state = CARET; break;
+                case '"': state = RSTRING; break;
+                case '#': state = RPREPROCESS; break;
                 case '~': state = START; returnToken(OP); break;
                 case '?': state = START; returnToken(OP); break;
                 case ':': state = START; returnToken(OP); break;
@@ -99,6 +141,11 @@ int lexicalAnalysis() {
             if (isDigit()) {
                 state = NUM1;
             }
+            else if (isLetter() && (ch != '_') && (ch != 'E')) {
+                retract();
+                state = START;
+                returnError();
+            }
             else {
                 switch (ch) {
                 case '.': state = NUM2; break;
@@ -131,6 +178,11 @@ int lexicalAnalysis() {
             getChar();
             if (isDigit()) {
                 state = NUM3;
+            }
+            else if (isLetter() && (ch != '_') && (ch != 'E')) {
+                retract();
+                state = START;
+                returnError();
             }
             else {
                 switch (ch) {
@@ -257,7 +309,7 @@ int lexicalAnalysis() {
             cat();
             getChar();
             switch (ch) {
-            case '\n': state = START; token.pop_back(); (NOTE); break;
+            case '\n': state = START; ch = token.back(); token.pop_back(); returnToken(NOTE); break;
             default:
                 state = SLASH1;
                 break;
@@ -430,20 +482,35 @@ int lexicalAnalysis() {
             }
             break;
 
+        case RSTRING:
+            cat();
+            getChar();
+            switch (ch) {
+            case '"': state = START; returnToken(STRING); break;
+            case '\n': state = START; returnError(); break;
+            default:
+                state = RSTRING;
+                break;
+            }
+            break;
+
+        case RPREPROCESS:
+            cat();
+            getChar();
+            switch (ch) {
+            case '\n': state = START; ch = token.back(); token.pop_back(); returnToken(PREPROCESS); break;
+            default:
+                state = RPREPROCESS;
+                break;
+            }
+            break;
+
         default:
             returnError();
             state = START;
             break;
         }
     }while (ch != EOF);
-    result << "****************************************************************" << std::endl
-           << "Lexical analysis compleated. Source program has" << line << " lines." << std::endl
-           << "Token type count:" << std::endl
-           << typeCount2str()
-           << "Total " << character << "characters." << std::endl
-           << "****************************************************************" << std::endl
-           << "Error info:" << std::endl
-           << error << std::endl;
     return 0;
 }
 
@@ -456,7 +523,11 @@ int lexicalAnalysis() {
  */
 int getChar() {
     if (!isRetract) {
-        program >> ch;
+        // Plan a: Don't work.
+        // program >> ch;
+
+        // Plan b: Work.
+        ch = getchar();
         ++character;
     }
     else {
@@ -477,7 +548,7 @@ int getChar() {
  * Make ch non-space char.
  */
 int getNbc() {
-    getChar();
+    //getChar();
     while (ch == ' ') {
         getChar();
     }
@@ -498,7 +569,7 @@ int cat() {
 bool isLetter() {
     return (('a' <= ch) && (ch <= 'z')) || 
            (('A' <= ch) && (ch <= 'Z')) || 
-           (ch == ' ');
+           (ch == '_');
 }
 
 /****************************************************************
@@ -529,7 +600,7 @@ int retract() {
  * Return 1 if token is keyword.
  */
 bool isReserve() {
-    return keyword.find(token) != keyword.end();
+    return keyword.find(token + ch) != keyword.end();
 }
 
 /****************************************************************
