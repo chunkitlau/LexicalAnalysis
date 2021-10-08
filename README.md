@@ -66,6 +66,32 @@ mkdir build && make
 
 分别运行三个样例程序。
 
+## LEX
+
+### 配置环境
+
+Linux 环境下，在当前目录（LexicalAnalysis/）打开终端，输入命令：
+
+```
+sudo apt install flex
+```
+
+### 编译
+
+Linux 环境下，在当前目录（LexicalAnalysis/）打开终端，输入命令：
+
+```
+cd lex && flex lex.l && cc lex.yy.c -o lex -ll
+```
+
+### 运行
+
+Linux 环境下，在当前目录（LexicalAnalysis/lex）打开终端，输入命令：
+
+```
+./lex ../demo/hello.c
+```
+
 ## 文档
 
 实验报告在 ./document/experimental report.md

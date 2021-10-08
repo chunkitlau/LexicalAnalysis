@@ -1,5 +1,9 @@
 # C语言词法分析程序的设计与实现实验报告
 
+[TOC]
+
+
+
 ## 题目：词法分析程序的设计与实现
 
 ## 实验内容：设计并实现 C 语言的词法分析程序，要求实现如下功能。
@@ -12,9 +16,9 @@
 
 ## 实现要求：分别用以下两种方法实现
 
-方法1：采用 C/C++ 作为实现语言，手工编写词法分析程序。
+方法1：采用 C/C++ 作为实现语言，手工编写词法分析程序。**（已实现）**
 
-方法2：编写 LEX 源程序，利用 LEX 编译程序自动生成词法分析程序。
+方法2：编写 LEX 源程序，利用 LEX 编译程序自动生成词法分析程序。**（已实现）**
 
 ## 程序设计说明
 
@@ -982,6 +986,145 @@ mkdir build && make
 
 LexicalAnalysis/build/lexicalAnalysis
 
+## LEX
+
+### 程序设计说明
+
+Lex 程序由三部分组成：声明部分、转换规则和辅助函数。
+
+声明部分定义标识符和所对应的字符串生成方法，定义和 C/C++ 程序设计的一样。
+
+转换规则部分定义了识别对应的标识符后所执行的操作，返回的信息。
+
+辅助函数部分定义了主函数和输出函数。
+
+### 源程序
+
+#### LexicalAnalysis/lex/lex.l
+
+```
+/* Declaration */
+%{
+
+#include <stdio.h>
+
+#define ID          0 
+#define INT         1   
+#define FLOAT       2   
+#define OP          3   
+#define SINGLE      4   
+#define NOTE        5   
+#define KEYWORD     6  
+#define STRING      7   
+#define PREPROCESS  8
+
+%}
+
+/* Formal definition */
+delim           [ \t\n]
+ws              {delim}+
+letter          [A-Za-z]
+digit           [0-9]
+id              {letter}({letter}|{digit})*
+int             {digit}+
+float           {digit}+\.({digit}+)?(E[+\-]?{digit}+)?
+arithmeticOp    \+|\-|\*|\\|\%|\+\+|\-\-
+relationalOp    \=\=|\!\=|\>|\<|\>\=|\<\=
+logicalOp       \&\&|\|\||\!
+bitOp           \&|\||\^|\~|\<\<|\>\>
+assignmentOp    \=|\+\=|\-\=|\*\=|\/\=|\%\=|\<\<\=|\>\>\=|\&\=|\^\=|\|\=
+op              {arithmeticOp}|{relationalOp}|{logicalOp}|{bitOp}|{assignmentOp}|\?|\:
+single          \(|\)|\[|\]|\{|\}|\.|\,|\;
+note            \/\/.\n|\/\*.\*\/
+keyword         auto|break|case|char|const|continue|default|do|double|else|enum|extern|float|for|goto|if|int|long|register|return|short|signed|sizeof|static|struct|switch|typedef|unsigned|onion|void|volatile|while|inline|restrict
+string          \".\"
+preprocess      \#.
+
+%% /* Translation rules */
+
+{ws}            { } /* No action, no return, skip all blank charactors*/
+{keyword}       { return(KEYWORD); }
+{id}            { return(ID); }
+{int}           { return(INT); }
+{float}         { return(FLOAT); }
+{op}            { return(OP); }
+{single}        { return(SINGLE); }
+{note}          { return(NOTE); }
+{string}        { return(STRING); }
+{preprocess}    { return(PREPROCESS); }
+
+%%
+
+/* Auxiliary process */
+void writeout(int c){
+    switch(c){
+        case ID:            
+        case INT:           
+        case FLOAT:         
+        case OP:            
+        case SINGLE:        
+        case NOTE:          
+        case KEYWORD:       
+        case STRING:        
+        case PREPROCESS:    
+        default:break;
+    }
+    return;
+}
+
+int main (int argc, char ** argv){
+    int c;
+    if (argc>=2){
+        if ((yyin = fopen(argv[1], "r")) == NULL){
+            printf("Can't open file %s\n", argv[1]);
+            return 1;
+        }
+        if (argc>=3){
+            yyout=fopen(argv[2], "w");
+        }
+    }
+
+    /* yyin和yyout是lex中定义的输入输出文件指针，它们指明了
+     * lex生成的词法分析器从哪里获得输入和输出到哪里。
+     * 默认：stdin，stdout。
+     */
+    while ((c = yylex()) != 0) {
+        writeout(c);
+    }
+
+    if(argc>=2){
+        fclose(yyin);
+        if (argc>=3) fclose(yyout);
+    }
+    return 0;
+}
+
+```
+
+### 配置环境
+
+Linux 环境下，在当前目录（LexicalAnalysis/）打开终端，输入命令：
+
+```
+sudo apt install flex
+```
+
+### 编译
+
+Linux 环境下，在当前目录（LexicalAnalysis/）打开终端，输入命令：
+
+```
+cd lex && flex lex.l && cc lex.yy.c -o lex -ll
+```
+
+### 运行
+
+Linux 环境下，在当前目录（LexicalAnalysis/lex）打开终端，输入命令：
+
+```
+./lex ../demo/hello.c
+```
+
 ## 测试报告
 
 ### hello.c
@@ -1207,3 +1350,4 @@ ERROR at Ln 10, Col 1
 每个被识别到的 token 都会输出一段信息，包含 token 的类型、完整的 token 和 token 被识别到的位置（通常是 token 的结尾或者下一行的开头）。
 
 特别的本程序有两个错误，分别是 int a = 123a; 和 char* b = "; 。其中第一个错误是错误的数字，因为数字不可以接有字母，在数字紧跟着的字母处程序识别出错误，并定位到 Ln 8, Col 15，第二个错误是错误的字符串，因为字符串由两个双引号包裹，在程序一行的结尾处还没有识别到第二个双引号，程序识别出错误，并定位到下一行 Ln 10, Col 1。
+
