@@ -13,6 +13,8 @@
 #define STRING      7   
 #define PREPROCESS  8
 
+int count[20];
+
 %}
 
 /* Formal definition */
@@ -53,15 +55,15 @@ preprocess      \#.
 /* Auxiliary process */
 void writeout(int c){
     switch(c){
-        case ID:            
-        case INT:           
-        case FLOAT:         
-        case OP:            
-        case SINGLE:        
-        case NOTE:          
-        case KEYWORD:       
-        case STRING:        
-        case PREPROCESS:    
+        case ID:            ++count[ID];         fprintf(yyout, "(ID, \"%s\")\n", yytext);break;
+        case INT:           ++count[INT];        fprintf(yyout, "(INT, \"%s\")\n", yytext);break;
+        case FLOAT:         ++count[FLOAT];      fprintf(yyout, "(FLOAT, \"%s\")\n", yytext);break;
+        case OP:            ++count[OP];         fprintf(yyout, "(OP, \"%s\")\n", yytext);break;
+        case SINGLE:        ++count[SINGLE];     fprintf(yyout, "(SINGLE, \"%s\")\n", yytext);break;
+        case NOTE:          ++count[NOTE];       fprintf(yyout, "(NOTE, \"%s\")\n", yytext);break;
+        case KEYWORD:       ++count[KEYWORD];    fprintf(yyout, "(KEYWORD, \"%s\")\n", yytext);break;
+        case STRING:        ++count[STRING];     fprintf(yyout, "(STRING, \"%s\")\n", yytext);break;
+        case PREPROCESS:    ++count[PREPROCESS]; fprintf(yyout, "(PREPROCESS, \"%s\")\n", yytext);break;
         default:break;
     }
     return;
@@ -86,7 +88,19 @@ int main (int argc, char ** argv){
     while ((c = yylex()) != 0) {
         writeout(c);
     }
-
+    
+    fprintf(yyout, "****************************************************************\n");
+    fprintf(yyout, "Token type count\n");
+    fprintf(yyout, "ID: %d\n", count[ID]);
+    fprintf(yyout, "INT: %d\n", count[INT]);
+    fprintf(yyout, "FLOAT: %d\n", count[FLOAT]);
+    fprintf(yyout, "OP: %d\n", count[OP]);
+    fprintf(yyout, "SINGLE: %d\n", count[SINGLE]);
+    fprintf(yyout, "NOTE: %d\n", count[NOTE]);
+    fprintf(yyout, "KEYWORD: %d\n", count[KEYWORD]);
+    fprintf(yyout, "STRING: %d\n", count[STRING]);
+    fprintf(yyout, "PREPROCESS: %d\n", count[PREPROCESS]);
+    
     if(argc>=2){
         fclose(yyin);
         if (argc>=3) fclose(yyout);
