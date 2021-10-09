@@ -42,17 +42,19 @@
 
 预处理态根据当前的输入转移到相应的状态，如果输入是换行符则 token 并转移到起始态，否则转移到预处理态继续处理。
 
-### 自动机对应文法（部分）
+### 文法设计
 
 ![](./note.jpg)
 
-程序由一个主函数，一个分析函数和若干辅助函数组成。
+### C/C++ 版本
 
-### int main(int argc, char* argv[])
+程序由一个主函数，一个分析函数和若干辅助函数组成。主要函数设计如下：
+
+#### int main(int argc, char* argv[])
 
 主函数负责命令行参数解析以选定被分析程序、打开和关闭输入输出文件、调用分析函数完成分析和将分析结果输出。
 
-### int lexicalAnalysis()
+#### int lexicalAnalysis()
 
 分析函数负责分析被分析程序得出分析结果。
 
@@ -60,61 +62,73 @@
 
 自动机的描述在本章开头已经叙述，详细的实践请见源程序。
 
-### int getChar()
+#### int getChar()
 
 获取字符函数负责从被分析程序中获取一个字符或者从被退回的字符中获取一个字符，获取的字符保存在char类型全局静态变量ch中。同时该函数还维护当前读取到被分析程序的第几行第几列的信息。
 
-### int getNbc()
+#### int getNbc()
 
 获取非空格字符函数负责检测char类型全局静态变量ch是否为空格，如果是则调用int getChar()函数直到ch不为空格为止。
 
-### int cat()
+#### int cat()
 
 拼接函数负责向 token 插入字符 ch。
 
-### bool isLetter()
+#### bool isLetter()
 
 判断字母函数负责判断字符 ch 是否为字母 a~z, A~Z 或者 _，如果是则返回1，否则返回0。
 
-### bool isDigit()
+#### bool isDigit()
 
 判断数字函数负责判断字符 ch 是否为数字 0~9，如果是则返回1，否则返回0。
 
-### int retract()
+#### int retract()
 
 回退函数负责将当前处理的字符回退到上一个字符。
 
-### bool isReserve()
+#### bool isReserve()
 
 判断关键字函数负责判断 token 是否为关键字，如果在关键字映射 keyword 中找到 token 则表明 token 是关键字并返回1，否则表明 token 不是关键字并返回0。
 
-### int SToI()
+#### int SToI()
 
 将 token 转换成 int 并返回。
 
-### int SToF()
+#### int SToF()
 
 将 token 转换成 float 并返回。
 
-### int tableInsert()
+#### int tableInsert()
 
 插入函数负责将 token 插入标识符表 table 中。
 
-### int returnError()
+#### int returnError()
 
 错误处理函数负责将发生错误的位置信息保存到错误日志中。
 
-### int returnToken(int type)
+#### int returnToken(int type)
 
 token 处理函数负责将 token 的类型、原文和位置信息保存到结果日志中。
 
-### std::string typeCount2str()
+#### std::string typeCount2str()
 
 统计转换函数负责将 token 统计映射 typeCount 中的信息转换成字符串并返回。
 
+### LEX 版本
+
+Lex 程序由三部分组成：声明部分、转换规则和辅助函数。
+
+声明部分定义标识符和所对应的字符串生成方法，定义和 C/C++ 程序设计的一样。
+
+转换规则部分定义了识别对应的标识符后所执行的操作，返回的信息。
+
+辅助函数部分定义了主函数和输出函数。
+
 ## 源程序
 
-### LexicalAnalysis/source/lexicalAnalysis.cpp
+### C/C++ 版本
+
+#### LexicalAnalysis/source/lexicalAnalysis.cpp
 
 ```
 #include "lexicalAnalysis.hpp"
@@ -775,7 +789,7 @@ std::string typeCount2str() {
 }
 ```
 
-### LexicalAnalysis/include/lexicalAnalysis.hpp
+#### LexicalAnalysis/include/lexicalAnalysis.hpp
 
 ```
 #ifndef LEXICALANALYSIS_HPP
@@ -936,69 +950,7 @@ static int lexicalAnalysis();
 #endif // LEXICALANALYSIS_HPP
 ```
 
-## 编译
-
-Linux 环境下，在当前目录（LexicalAnalysis/）打开终端，输入命令：
-
-```
-mkdir build && make
-```
-
-## 运行
-
-### 简单运行
-
-编译后，Linux 环境下，在当前目录（LexicalAnalysis/）打开终端，输入命令：
-
-```
-./build/lexicalAnalysis
-```
-
-默认样例程序为 LexicalAnalysis/demo/hello.c 。
-
-### 高级选项
-
-编写 C 程序，将程序放置在 LexicalAnalysis/demo/ 目录下，若程序为filename.c，则输入命令：
-
-```
-./build/lexicalAnalysis -p filename
-```
-
-### 样例
-
-在 LexicalAnalysis/demo/ 目录下提供样例程序：hello.c aPlusB.c helloError.c 三个样例程序，输入命令：
-
-```
-./build/lexicalAnalysis -p hello
-```
-
-```
-./build/lexicalAnalysis -p aPlusB
-```
-
-```
-./build/lexicalAnalysis -p helloError
-```
-
-分别运行三个样例程序。
-
-## 可执行程序
-
-LexicalAnalysis/build/lexicalAnalysis
-
-## LEX
-
-### 程序设计说明
-
-Lex 程序由三部分组成：声明部分、转换规则和辅助函数。
-
-声明部分定义标识符和所对应的字符串生成方法，定义和 C/C++ 程序设计的一样。
-
-转换规则部分定义了识别对应的标识符后所执行的操作，返回的信息。
-
-辅助函数部分定义了主函数和输出函数。
-
-### 源程序
+### LEX 版本
 
 #### LexicalAnalysis/lex/lex.l
 
@@ -1008,15 +960,17 @@ Lex 程序由三部分组成：声明部分、转换规则和辅助函数。
 
 #include <stdio.h>
 
-#define ID          0 
-#define INT         1   
-#define FLOAT       2   
-#define OP          3   
-#define SINGLE      4   
-#define NOTE        5   
-#define KEYWORD     6  
-#define STRING      7   
-#define PREPROCESS  8
+#define ID          1 
+#define INT         2   
+#define FLOAT       3   
+#define OP          4   
+#define SINGLE      5   
+#define NOTE        6   
+#define KEYWORD     7  
+#define STRING      8   
+#define PREPROCESS  9
+
+int count[20];
 
 %}
 
@@ -1035,10 +989,10 @@ bitOp           \&|\||\^|\~|\<\<|\>\>
 assignmentOp    \=|\+\=|\-\=|\*\=|\/\=|\%\=|\<\<\=|\>\>\=|\&\=|\^\=|\|\=
 op              {arithmeticOp}|{relationalOp}|{logicalOp}|{bitOp}|{assignmentOp}|\?|\:
 single          \(|\)|\[|\]|\{|\}|\.|\,|\;
-note            \/\/.\n|\/\*.\*\/
+note            \/\/.*\n|\/\*.*\*\/
 keyword         auto|break|case|char|const|continue|default|do|double|else|enum|extern|float|for|goto|if|int|long|register|return|short|signed|sizeof|static|struct|switch|typedef|unsigned|onion|void|volatile|while|inline|restrict
-string          \".\"
-preprocess      \#.
+string          \".*\"
+preprocess      \#.*
 
 %% /* Translation rules */
 
@@ -1058,15 +1012,15 @@ preprocess      \#.
 /* Auxiliary process */
 void writeout(int c){
     switch(c){
-        case ID:            
-        case INT:           
-        case FLOAT:         
-        case OP:            
-        case SINGLE:        
-        case NOTE:          
-        case KEYWORD:       
-        case STRING:        
-        case PREPROCESS:    
+        case ID:            ++count[ID];         fprintf(yyout, "(ID, \"%s\")\n", yytext);break;
+        case INT:           ++count[INT];        fprintf(yyout, "(INT, \"%s\")\n", yytext);break;
+        case FLOAT:         ++count[FLOAT];      fprintf(yyout, "(FLOAT, \"%s\")\n", yytext);break;
+        case OP:            ++count[OP];         fprintf(yyout, "(OP, \"%s\")\n", yytext);break;
+        case SINGLE:        ++count[SINGLE];     fprintf(yyout, "(SINGLE, \"%s\")\n", yytext);break;
+        case NOTE:          ++count[NOTE];       fprintf(yyout, "(NOTE, \"%s\")\n", yytext);break;
+        case KEYWORD:       ++count[KEYWORD];    fprintf(yyout, "(KEYWORD, \"%s\")\n", yytext);break;
+        case STRING:        ++count[STRING];     fprintf(yyout, "(STRING, \"%s\")\n", yytext);break;
+        case PREPROCESS:    ++count[PREPROCESS]; fprintf(yyout, "(PREPROCESS, \"%s\")\n", yytext);break;
         default:break;
     }
     return;
@@ -1091,7 +1045,19 @@ int main (int argc, char ** argv){
     while ((c = yylex()) != 0) {
         writeout(c);
     }
-
+    
+    fprintf(yyout, "****************************************************************\n");
+    fprintf(yyout, "Token type count\n");
+    fprintf(yyout, "ID: %d\n", count[ID]);
+    fprintf(yyout, "INT: %d\n", count[INT]);
+    fprintf(yyout, "FLOAT: %d\n", count[FLOAT]);
+    fprintf(yyout, "OP: %d\n", count[OP]);
+    fprintf(yyout, "SINGLE: %d\n", count[SINGLE]);
+    fprintf(yyout, "NOTE: %d\n", count[NOTE]);
+    fprintf(yyout, "KEYWORD: %d\n", count[KEYWORD]);
+    fprintf(yyout, "STRING: %d\n", count[STRING]);
+    fprintf(yyout, "PREPROCESS: %d\n", count[PREPROCESS]);
+    
     if(argc>=2){
         fclose(yyin);
         if (argc>=3) fclose(yyout);
@@ -1101,7 +1067,57 @@ int main (int argc, char ** argv){
 
 ```
 
-### 配置环境
+## 编译
+
+Linux 环境下，在当前目录（LexicalAnalysis/）打开终端，输入命令：
+
+```
+mkdir build && make
+```
+
+## 运行
+
+### C/C++ 版本
+
+#### 简单运行
+
+编译后，Linux 环境下，在当前目录（LexicalAnalysis/）打开终端，输入命令：
+
+```
+./build/lexicalAnalysis
+```
+
+默认样例程序为 LexicalAnalysis/demo/hello.c 。
+
+#### 高级选项
+
+编写 C 程序，将程序放置在 LexicalAnalysis/demo/ 目录下，若程序为filename.c，则输入命令：
+
+```
+./build/lexicalAnalysis -p filename
+```
+
+#### 样例
+
+在 LexicalAnalysis/demo/ 目录下提供样例程序：hello.c aPlusB.c helloError.c 三个样例程序，输入命令：
+
+```
+./build/lexicalAnalysis -p hello
+```
+
+```
+./build/lexicalAnalysis -p aPlusB
+```
+
+```
+./build/lexicalAnalysis -p helloError
+```
+
+分别运行三个样例程序。
+
+### LEX 版本
+
+#### 配置环境
 
 Linux 环境下，在当前目录（LexicalAnalysis/）打开终端，输入命令：
 
@@ -1109,7 +1125,7 @@ Linux 环境下，在当前目录（LexicalAnalysis/）打开终端，输入命�
 sudo apt install flex
 ```
 
-### 编译
+#### 编译
 
 Linux 环境下，在当前目录（LexicalAnalysis/）打开终端，输入命令：
 
@@ -1117,13 +1133,25 @@ Linux 环境下，在当前目录（LexicalAnalysis/）打开终端，输入命�
 cd lex && flex lex.l && cc lex.yy.c -o lex -ll
 ```
 
-### 运行
+#### 运行
 
 Linux 环境下，在当前目录（LexicalAnalysis/lex）打开终端，输入命令：
 
 ```
 ./lex ../demo/hello.c
 ```
+
+其中第二个参数为被分析程序路径。
+
+## 可执行程序
+
+### C/C++ 版本
+
+LexicalAnalysis/build/lexicalAnalysis
+
+### LEX 版本
+
+LexicalAnalysis/lex/lex
 
 ## 测试报告
 
@@ -1143,7 +1171,7 @@ int main()
 }
 ```
 
-#### 运行结果
+#### C/C++ 版本 运行结果
 
 ```
 Find token <PREPROCESS, #include <stdio.h>> at Ln 2, Col 1
@@ -1181,6 +1209,38 @@ Error info:
 
 ```
 
+#### LEX 版本 运行结果
+
+```
+(PREPROCESS, "#include <stdio.h>")
+(KEYWORD, "int")
+(ID, "main")
+(SINGLE, "(")
+(SINGLE, ")")
+(SINGLE, "{")
+(NOTE, "/* My first C program */")
+(ID, "printf")
+(SINGLE, "(")
+(STRING, ""Hello, World! \n"")
+(SINGLE, ")")
+(SINGLE, ";")
+(KEYWORD, "return")
+(INT, "0")
+(SINGLE, ";")
+(SINGLE, "}")
+****************************************************************
+Token type count
+ID: 2
+INT: 1
+FLOAT: 0
+OP: 0
+SINGLE: 8
+NOTE: 1
+KEYWORD: 2
+STRING: 1
+PREPROCESS: 1
+```
+
 #### 分析说明
 
 本程序共有9行，共有16个 token 分别是2个标识符、1个整数、8个符号、1个注释、2个关键字、1个字符串和1个预处理命令，共有112个字符。
@@ -1206,7 +1266,7 @@ int main()
 }
 ```
 
-#### 运行结果
+#### C/C++ 版本 运行结果
 
 ```
 Find token <PREPROCESS, #include <stdio.h>> at Ln 2, Col 1
@@ -1269,9 +1329,196 @@ Error info:
 
 ```
 
+#### LEX 版本 运行结果
+
+```
+(PREPROCESS, "#include <stdio.h>")
+(KEYWORD, "int")
+(ID, "main")
+(SINGLE, "(")
+(SINGLE, ")")
+(SINGLE, "{")
+(NOTE, "/* My second C program */")
+(KEYWORD, "int")
+(ID, "a")
+(SINGLE, ",")
+(ID, "b")
+(SINGLE, ";")
+(ID, "scanf")
+(SINGLE, "(")
+(STRING, ""%d %d"")
+(SINGLE, ",")
+(OP, "&")
+(ID, "a")
+(SINGLE, ",")
+(OP, "&")
+(ID, "b")
+(SINGLE, ")")
+(SINGLE, ";")
+(KEYWORD, "int")
+(ID, "ans")
+(OP, "=")
+(ID, "a")
+(OP, "+")
+(ID, "b")
+(SINGLE, ";")
+(ID, "printf")
+(SINGLE, "(")
+(STRING, ""%d\n"")
+(SINGLE, ",")
+(ID, "ans")
+(SINGLE, ")")
+(SINGLE, ";")
+(KEYWORD, "return")
+(INT, "0")
+(SINGLE, ";")
+(SINGLE, "}")
+****************************************************************
+Token type count
+ID: 11
+INT: 1
+FLOAT: 0
+OP: 4
+SINGLE: 17
+NOTE: 1
+KEYWORD: 4
+STRING: 2
+PREPROCESS: 1
+```
+
 #### 分析说明
 
 本程序共有12行，共有41个 token 分别是11个标识符、1个整数、4个运算符、17个符号、1个注释、4个关键字、2个字符串和1个预处理命令，共有166个字符。
+
+每个被识别到的 token 都会输出一段信息，包含 token 的类型、完整的 token 和 token 被识别到的位置（通常是 token 的结尾或者下一行的开头）。
+
+### aPlusBFloat.c
+
+#### 输入
+
+```
+#include <stdio.h>
+ 
+int main()
+{
+   /* My second C program */
+   float a = 12.34E+5, b = 65.43E-2;
+   float ans = a + b;
+   printf("%f\n", ans);
+   
+   return 0;
+}
+```
+
+#### C/C++ 版本 运行结果
+
+```
+Find token <PREPROCESS, #include <stdio.h>> at Ln 2, Col 1
+Find token <KEYWORD, int> at Ln 3, Col 4
+Find token <ID, main> at Ln 3, Col 9
+Find token <SINGLE, (> at Ln 3, Col 10
+Find token <SINGLE, )> at Ln 3, Col 11
+Find token <SINGLE, {> at Ln 4, Col 2
+Find token <NOTE, /* My second C program */> at Ln 5, Col 29
+Find token <KEYWORD, float> at Ln 6, Col 9
+Find token <ID, a> at Ln 6, Col 11
+Find token <OP, => at Ln 6, Col 13
+Find token <FLOAT, 12.34E+5> at Ln 6, Col 22
+Find token <SINGLE, ,> at Ln 6, Col 23
+Find token <ID, b> at Ln 6, Col 25
+Find token <OP, => at Ln 6, Col 27
+Find token <FLOAT, 65.43E-2> at Ln 6, Col 36
+Find token <SINGLE, ;> at Ln 6, Col 37
+Find token <KEYWORD, float> at Ln 7, Col 9
+Find token <ID, ans> at Ln 7, Col 13
+Find token <OP, => at Ln 7, Col 15
+Find token <ID, a> at Ln 7, Col 17
+Find token <OP, +> at Ln 7, Col 19
+Find token <ID, b> at Ln 7, Col 21
+Find token <SINGLE, ;> at Ln 7, Col 22
+Find token <ID, printf> at Ln 8, Col 10
+Find token <SINGLE, (> at Ln 8, Col 11
+Find token <STRING, "%f\n"> at Ln 8, Col 17
+Find token <SINGLE, ,> at Ln 8, Col 18
+Find token <ID, ans> at Ln 8, Col 22
+Find token <SINGLE, )> at Ln 8, Col 23
+Find token <SINGLE, ;> at Ln 8, Col 24
+Find token <KEYWORD, return> at Ln 10, Col 10
+Find token <INT, 0> at Ln 10, Col 12
+Find token <SINGLE, ;> at Ln 10, Col 13
+Find token <SINGLE, }> at Ln 11, Col 2
+****************************************************************
+Lexical analysis compleated. Source program has 11 lines.
+Token type count:
+ID: 8
+INT: 1
+FLOAT: 2
+OP: 4
+SINGLE: 12
+NOTE: 1
+KEYWORD: 4
+STRING: 1
+PREPROCESS: 1
+Total 165 characters.
+****************************************************************
+Error info:
+
+
+```
+
+#### LEX 版本 运行结果
+
+```
+(PREPROCESS, "#include <stdio.h>")
+(KEYWORD, "int")
+(ID, "main")
+(SINGLE, "(")
+(SINGLE, ")")
+(SINGLE, "{")
+(NOTE, "/* My second C program */")
+(KEYWORD, "float")
+(ID, "a")
+(OP, "=")
+(FLOAT, "12.34E+5")
+(SINGLE, ",")
+(ID, "b")
+(OP, "=")
+(FLOAT, "65.43E-2")
+(SINGLE, ";")
+(KEYWORD, "float")
+(ID, "ans")
+(OP, "=")
+(ID, "a")
+(OP, "+")
+(ID, "b")
+(SINGLE, ";")
+(ID, "printf")
+(SINGLE, "(")
+(STRING, ""%f\n"")
+(SINGLE, ",")
+(ID, "ans")
+(SINGLE, ")")
+(SINGLE, ";")
+(KEYWORD, "return")
+(INT, "0")
+(SINGLE, ";")
+(SINGLE, "}")
+****************************************************************
+Token type count
+ID: 8
+INT: 1
+FLOAT: 2
+OP: 4
+SINGLE: 12
+NOTE: 1
+KEYWORD: 4
+STRING: 1
+PREPROCESS: 1
+```
+
+#### 分析说明
+
+本程序共有11行，共有34个 token 分别是8个标识符、1个整数、2个浮点数、4个运算符、12个符号、1个注释、4个关键字、1个字符串和1个预处理命令，共有165个字符。
 
 每个被识别到的 token 都会输出一段信息，包含 token 的类型、完整的 token 和 token 被识别到的位置（通常是 token 的结尾或者下一行的开头）。
 
@@ -1294,7 +1541,7 @@ int main()
 }
 ```
 
-#### 运行结果
+#### C/C++ 版本 运行结果
 
 ```
 Find token <PREPROCESS, #include <stdio.h>> at Ln 2, Col 1
@@ -1343,6 +1590,49 @@ ERROR at Ln 10, Col 1
 
 ```
 
+#### LEX 版本 运行结果
+
+```
+(PREPROCESS, "#include <stdio.h>")
+(KEYWORD, "int")
+(ID, "main")
+(SINGLE, "(")
+(SINGLE, ")")
+(SINGLE, "{")
+(NOTE, "/* My third C program */")
+(ID, "printf")
+(SINGLE, "(")
+(STRING, ""Hello, World! \n"")
+(SINGLE, ")")
+(SINGLE, ";")
+(KEYWORD, "int")
+(ID, "a")
+(OP, "=")
+(INT, "123")
+(ID, "a")
+(SINGLE, ";")
+(KEYWORD, "char")
+(OP, "*")
+(ID, "b")
+(OP, "=")
+"(SINGLE, ";")
+(KEYWORD, "return")
+(INT, "0")
+(SINGLE, ";")
+(SINGLE, "}")
+****************************************************************
+Token type count
+ID: 5
+INT: 2
+FLOAT: 0
+OP: 3
+SINGLE: 10
+NOTE: 1
+KEYWORD: 4
+STRING: 1
+PREPROCESS: 1
+```
+
 #### 分析说明
 
 本程序共有12行，共有25个 token 分别是5个标识符、1个整数、3个运算符、9个符号、1个注释、4个关键字、1个字符串和1个预处理命令，共有146个字符。
@@ -1350,4 +1640,3 @@ ERROR at Ln 10, Col 1
 每个被识别到的 token 都会输出一段信息，包含 token 的类型、完整的 token 和 token 被识别到的位置（通常是 token 的结尾或者下一行的开头）。
 
 特别的本程序有两个错误，分别是 int a = 123a; 和 char* b = "; 。其中第一个错误是错误的数字，因为数字不可以接有字母，在数字紧跟着的字母处程序识别出错误，并定位到 Ln 8, Col 15，第二个错误是错误的字符串，因为字符串由两个双引号包裹，在程序一行的结尾处还没有识别到第二个双引号，程序识别出错误，并定位到下一行 Ln 10, Col 1。
-

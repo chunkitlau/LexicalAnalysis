@@ -1,0 +1,50 @@
+Find token <PREPROCESS, #include <stdio.h>> at Ln 2, Col 1
+Find token <KEYWORD, int> at Ln 3, Col 4
+Find token <ID, main> at Ln 3, Col 9
+Find token <SINGLE, (> at Ln 3, Col 10
+Find token <SINGLE, )> at Ln 3, Col 11
+Find token <SINGLE, {> at Ln 4, Col 2
+Find token <NOTE, /* My second C program */> at Ln 5, Col 29
+Find token <KEYWORD, float> at Ln 6, Col 9
+Find token <ID, a> at Ln 6, Col 11
+Find token <OP, => at Ln 6, Col 13
+Find token <FLOAT, 12.34E+5> at Ln 6, Col 22
+Find token <SINGLE, ,> at Ln 6, Col 23
+Find token <ID, b> at Ln 6, Col 25
+Find token <OP, => at Ln 6, Col 27
+Find token <FLOAT, 65.43E-2> at Ln 6, Col 36
+Find token <SINGLE, ;> at Ln 6, Col 37
+Find token <KEYWORD, float> at Ln 7, Col 9
+Find token <ID, ans> at Ln 7, Col 13
+Find token <OP, => at Ln 7, Col 15
+Find token <ID, a> at Ln 7, Col 17
+Find token <OP, +> at Ln 7, Col 19
+Find token <ID, b> at Ln 7, Col 21
+Find token <SINGLE, ;> at Ln 7, Col 22
+Find token <ID, printf> at Ln 8, Col 10
+Find token <SINGLE, (> at Ln 8, Col 11
+Find token <STRING, "%f\n"> at Ln 8, Col 17
+Find token <SINGLE, ,> at Ln 8, Col 18
+Find token <ID, ans> at Ln 8, Col 22
+Find token <SINGLE, )> at Ln 8, Col 23
+Find token <SINGLE, ;> at Ln 8, Col 24
+Find token <KEYWORD, return> at Ln 10, Col 10
+Find token <INT, 0> at Ln 10, Col 12
+Find token <SINGLE, ;> at Ln 10, Col 13
+Find token <SINGLE, }> at Ln 11, Col 2
+****************************************************************
+Lexical analysis compleated. Source program has 11 lines.
+Token type count:
+ID: 8
+INT: 1
+FLOAT: 2
+OP: 4
+SINGLE: 12
+NOTE: 1
+KEYWORD: 4
+STRING: 1
+PREPROCESS: 1
+Total 165 characters.
+****************************************************************
+Error info:
+

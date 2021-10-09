@@ -3,15 +3,15 @@
 
 #include <stdio.h>
 
-#define ID          0 
-#define INT         1   
-#define FLOAT       2   
-#define OP          3   
-#define SINGLE      4   
-#define NOTE        5   
-#define KEYWORD     6  
-#define STRING      7   
-#define PREPROCESS  8
+#define ID          1 
+#define INT         2   
+#define FLOAT       3   
+#define OP          4   
+#define SINGLE      5   
+#define NOTE        6   
+#define KEYWORD     7  
+#define STRING      8   
+#define PREPROCESS  9
 
 int count[20];
 
@@ -32,10 +32,10 @@ bitOp           \&|\||\^|\~|\<\<|\>\>
 assignmentOp    \=|\+\=|\-\=|\*\=|\/\=|\%\=|\<\<\=|\>\>\=|\&\=|\^\=|\|\=
 op              {arithmeticOp}|{relationalOp}|{logicalOp}|{bitOp}|{assignmentOp}|\?|\:
 single          \(|\)|\[|\]|\{|\}|\.|\,|\;
-note            \/\/.\n|\/\*.\*\/
+note            \/\/.*\n|\/\*.*\*\/
 keyword         auto|break|case|char|const|continue|default|do|double|else|enum|extern|float|for|goto|if|int|long|register|return|short|signed|sizeof|static|struct|switch|typedef|unsigned|onion|void|volatile|while|inline|restrict
-string          \".\"
-preprocess      \#.
+string          \".*\"
+preprocess      \#.*
 
 %% /* Translation rules */
 
