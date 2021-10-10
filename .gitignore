@@ -1,0 +1,4 @@
+build/lexicalAnalysis
+build/lexicalAnalysis.o
+lex/lex
+lex/lex.yy.c
